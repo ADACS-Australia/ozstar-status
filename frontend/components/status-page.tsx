@@ -15,6 +15,12 @@ type StatusData = {
   lastUpdated: Date;
 };
 
+type StatusItemProps = {
+  title: string;
+  items: ItemStatus[];
+  icon: JSX.Element;
+};
+
 const fetchStatusData = async () => {
   try {
     const response = await fetch('https://supercomputing.swin.edu.au/monitor/api/status')
@@ -119,7 +125,7 @@ export function StatusPage() {
   )
 }
 
-function StatusItem({ title, items, icon }) {
+function StatusItem({ title, items, icon }: StatusItemProps) {
   const hasUnknownStatus = items.some(item => item.status === 'unknown')
   const allOperational = items.every(item => item.status === 'up')
 
