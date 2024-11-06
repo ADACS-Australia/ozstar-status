@@ -19,7 +19,7 @@ const fetchStatusData = async () => {
       }))
     }
   } catch (error) {
-    // console.error('Error fetching status:', error)
+    console.error('Error fetching status:', error)
     return {
       jobQueues: [
         { name: 'unknown', status: 'unknown' }
