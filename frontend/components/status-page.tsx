@@ -4,6 +4,17 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { CheckCircle2, XCircle, Server, List, AlertTriangle  } from "lucide-react"
 
+type QueueStatus = {
+  name: string;
+  status: any;
+};
+
+type StatusData = {
+  jobQueues: QueueStatus[];
+  loginNodes: QueueStatus[];
+  lastUpdated: Date;
+};
+
 const fetchStatusData = async () => {
   try {
     const response = await fetch('https://supercomputing.swin.edu.au/monitor/api/status')
@@ -31,7 +42,7 @@ const fetchStatusData = async () => {
   }
 }
 export function StatusPage() {
-  const [status, setStatus] = useState({
+  const [status, setStatus] = useState<StatusData>({
     jobQueues: [],
     loginNodes: [],
     lastUpdated: new Date()
