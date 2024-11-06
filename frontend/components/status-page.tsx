@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { CheckCircle2, XCircle, Server, List, AlertTriangle  } from "lucide-react"
 
-type QueueStatus = {
+type ItemStatus = {
   name: string;
-  status: any;
+  status: 'up' | 'down' | 'unknown';
 };
 
 type StatusData = {
-  jobQueues: QueueStatus[];
-  loginNodes: QueueStatus[];
+  jobQueues: ItemStatus[];
+  loginNodes: ItemStatus[];
   lastUpdated: Date;
 };
 
