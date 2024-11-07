@@ -15,6 +15,7 @@ def serve_status():
 
         # Output the HTTP headers
         print("Content-Type: application/json")
+        print("Access-Control-Allow-Origin: *")
         print()
 
         # Output the JSON content
