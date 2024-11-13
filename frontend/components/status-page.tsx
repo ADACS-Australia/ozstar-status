@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { CheckCircle2, XCircle, Server, List, AlertTriangle  } from "lucide-react"
+import { CheckCircle2, XCircle, Server, List, AlertTriangle } from "lucide-react"
 
 type ItemStatus = {
   name: string;
@@ -21,19 +21,20 @@ type StatusItemProps = {
   icon: JSX.Element;
 };
 
-const fetchStatusData = async () => {
+const fetchStatusData = async (): Promise<StatusData> => {
   try {
     const response = await fetch('https://supercomputing.swin.edu.au/monitor/api/status')
     const data = await response.json()
     return {
       jobQueues: Object.keys(data.slurm_queues).map(name => ({
         name,
-        status: data.slurm_queues[name]
+        status: data.slurm_queues[name] as 'up' | 'down' | 'unknown'
       })),
       loginNodes: Object.keys(data.login_nodes).map(name => ({
         name,
-        status: data.login_nodes[name]
-      }))
+        status: data.login_nodes[name] as 'up' | 'down' | 'unknown'
+      })),
+      lastUpdated: new Date()
     }
   } catch (error) {
     console.error('Error fetching status:', error)
@@ -43,10 +44,12 @@ const fetchStatusData = async () => {
       ],
       loginNodes: [
         { name: 'unknown', status: 'unknown' }
-      ]
+      ],
+      lastUpdated: new Date()
     }
   }
 }
+
 export function StatusPage() {
   const [status, setStatus] = useState<StatusData>({
     jobQueues: [],
@@ -81,17 +84,13 @@ export function StatusPage() {
   }
 
   const getSummaryMessage = () => {
-    const hasUnknownStatus = status.jobQueues.some(q => q.status === 'unknown') || status.loginNodes.some(n => n.status === 'unknown')
     const allOperational = status.jobQueues.every(q => q.status === 'up') && status.loginNodes.every(n => n.status === 'up')
-
-    if (allOperational) {
-      return "All systems are operational"
-    } else if (hasUnknownStatus) {
-      return "Some systems have unknown status"
-    } else {
-      return "Some systems are unavailable"
-    }
+    return allOperational
+      ? "All systems are operational"
+      : "We're experiencing issues with some systems"
   }
+
+  const hasUnknownStatus = status.jobQueues.some(q => q.status === 'unknown') || status.loginNodes.some(n => n.status === 'unknown')
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -104,6 +103,19 @@ export function StatusPage() {
           <div className="text-lg font-semibold text-center p-2 rounded-lg bg-gray-100">
             {getSummaryMessage()}
           </div>
+          {hasUnknownStatus && (
+            <div className="text-center text-yellow-600">
+              <AlertTriangle className="inline-block h-6 w-6 mr-2" />
+              <span>
+                Some statuses are unknown. This is usually caused by a networking outage at Swinburne University. Please check Swinburne's status page for more information.
+              </span>
+              <div className="mt-2">
+                <a href="https://www.swinburne.edu.au/app/it-outages/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                  Swinburne IT Service Interruptions
+                </a>
+              </div>
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <StatusItem
               title="Job Queues"
