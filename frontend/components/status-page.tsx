@@ -107,7 +107,7 @@ export function StatusPage() {
             <div className="text-center text-yellow-600">
               <AlertTriangle className="inline-block h-6 w-6 mr-2" />
               <span>
-                Some statuses are unknown. This is usually caused by a networking outage at Swinburne University. Please check Swinburne's status page for more information.
+                Some statuses are unknown. This is usually caused by a networking outage at Swinburne University. Please check Swinburne&apos;s status page for more information.
               </span>
               <div className="mt-2">
                 <a href="https://www.swinburne.edu.au/app/it-outages/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
