@@ -15,6 +15,12 @@ type StatusData = {
   lastUpdated: Date;
 };
 
+type UptimeData = {
+  timestamp: string;
+  login_nodes: { [key: string]: 'up' | 'down' | 'unknown' };
+  slurm_queues: { [key: string]: 'up' | 'down' | 'unknown' };
+};
+
 type StatusItemProps = {
   title: string;
   items: ItemStatus[];
@@ -50,12 +56,24 @@ const fetchStatusData = async (): Promise<StatusData> => {
   }
 }
 
+const fetchUptimeData = async (): Promise<UptimeData[]> => {
+  try {
+    const response = await fetch('https://supercomputing.swin.edu.au/monitor/api/uptime')
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('Error fetching uptime data:', error)
+    return []
+  }
+}
+
 export function StatusPage() {
   const [status, setStatus] = useState<StatusData>({
     jobQueues: [],
     loginNodes: [],
     lastUpdated: new Date()
   })
+  const [uptime, setUptime] = useState<UptimeData[]>([])
 
   const updateStatus = async () => {
     const data = await fetchStatusData()
@@ -66,9 +84,18 @@ export function StatusPage() {
     })
   }
 
+  const updateUptime = async () => {
+    const data = await fetchUptimeData()
+    setUptime(data)
+  }
+
   useEffect(() => {
     updateStatus()
-    const interval = setInterval(updateStatus, 60000) // Update every minute
+    updateUptime()
+    const interval = setInterval(() => {
+      updateStatus()
+      updateUptime()
+    }, 60000) // Update every minute
     return () => clearInterval(interval)
   }, [])
 
@@ -128,6 +155,7 @@ export function StatusPage() {
               icon={<Server className="h-6 w-6" />}
             />
           </div>
+          <HistoryTimeline data={uptime} />
           <div className="text-sm text-gray-500 mt-4">
             Last updated: {formatDate(status.lastUpdated)}
           </div>
@@ -175,6 +203,65 @@ function StatusItem({ title, items, icon }: StatusItemProps) {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function HistoryTimeline({ data }: { data: UptimeData[] }) {
+  const hoursToShow = 24
+  const allItems = data.length > 0 ? Object.keys(data[0]).filter(key => key !== 'timestamp') : []
+
+  const getStatus = (entry: UptimeData, item: string) => {
+    return entry[item] || 'unknown'
+  }
+
+  const getItemLabel = (item: string) => {
+    switch (item) {
+      case 'login_nodes':
+        return 'Login Nodes'
+      case 'slurm_queues':
+        return 'Job Queues'
+      default:
+        return item
+    }
+  }
+
+  return (
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold mb-2">System Status History (Last {hoursToShow} Hours)</h3>
+      <div className="overflow-x-auto">
+        <div className="min-w-max">
+          <div className="flex items-center mb-2">
+            <div className="w-24"></div>
+            <div className="flex flex-1 justify-between text-xs text-gray-500">
+              <span>24h ago</span>
+              <span>Now</span>
+            </div>
+          </div>
+          {allItems.map((item) => (
+            <div key={item} className="flex items-center mb-2">
+              <div className="w-24 text-sm font-medium truncate mr-2">{getItemLabel(item)}</div>
+              <div className="flex flex-1">
+                {Array.from({ length: hoursToShow }).map((_, index) => {
+                  const entry = data[hoursToShow - index - 1]
+                  const status = entry ? getStatus(entry, item) : 'unknown'
+                  return (
+                    <div
+                      key={index}
+                      className={`flex-1 h-4 ${
+                        status === 'up' ? 'bg-green-500' : status === 'down' ? 'bg-red-500' : status === 'partial' ? 'bg-yellow-500' : 'bg-gray-500'
+                      } border-r border-white`}
+                      title={`${getItemLabel(item)} - ${entry ? new Date(entry.timestamp).toLocaleString() : 'No data'}: ${
+                        status === 'up' ? 'Operational' : status === 'down' ? 'Down' : status === 'partial' ? 'Partial' : 'Unknown'
+                      }`}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
