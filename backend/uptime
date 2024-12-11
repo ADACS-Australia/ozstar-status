@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+
+import json
+import os
+from datetime import datetime, timedelta
+
+# Define the file paths
+UPTIME_FILE_PATH = '/var/spool/jobmon/status/uptime.json'
+
+def serve_uptime():
+    # Output the HTTP headers
+    print("Content-Type: application/json")
+    print("Access-Control-Allow-Origin: *")
+    print()
+
+    # Check if the uptime file exists
+    if os.path.exists(UPTIME_FILE_PATH):
+        # Read the uptime file
+        with open(UPTIME_FILE_PATH, 'r') as f:
+            uptime_data = json.load(f)
+
+        # Filter the data to include only the last 24 hours
+        uptime_data = [entry for entry in uptime_data if datetime.fromisoformat(entry['timestamp']) > datetime.utcnow() - timedelta(hours=24)]
+
+        # Output the JSON content
+        print(json.dumps(uptime_data))
+    else:
+        # Output an error message
+        print(json.dumps({"error": "Uptime data not found"}))
+
+if __name__ == '__main__':
+    serve_uptime()
