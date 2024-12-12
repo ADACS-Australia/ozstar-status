@@ -209,10 +209,10 @@ function StatusItem({ title, items, icon }: StatusItemProps) {
 
 function HistoryTimeline({ data }: { data: UptimeData[] }) {
   const hoursToShow = 24
-  const allItems = data.length > 0 ? Object.keys(data[0]).filter(key => key !== 'timestamp') : []
+  const allItems: (keyof UptimeData)[] = data.length > 0 ? (Object.keys(data[0]).filter(key => key !== 'timestamp') as (keyof UptimeData)[]) : []
 
-  const getStatus = (entry: UptimeData, item: string) => {
-    return entry[item] || 'unknown'
+  const getStatus = (entry: UptimeData, item: keyof UptimeData) => {
+      return entry[item] || 'unknown'
   }
 
   const getItemLabel = (item: string) => {
@@ -244,7 +244,7 @@ function HistoryTimeline({ data }: { data: UptimeData[] }) {
               <div className="flex flex-1">
                 {Array.from({ length: hoursToShow }).map((_, index) => {
                   const entry = data[hoursToShow - index - 1]
-                  const status = entry ? getStatus(entry, item) : 'unknown'
+                  const status = entry ? getStatus(entry, item as keyof UptimeData) : 'unknown'
                   return (
                     <div
                       key={index}
