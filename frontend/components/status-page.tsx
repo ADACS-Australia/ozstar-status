@@ -21,6 +21,8 @@ type UptimeData = {
   slurm_queues: { [key: string]: 'up' | 'down' | 'unknown' };
 };
 
+
+
 type StatusItemProps = {
   title: string;
   items: ItemStatus[];
@@ -243,7 +245,7 @@ function HistoryTimeline({ data }: { data: UptimeData[] }) {
               <div className="w-24 text-sm font-medium truncate mr-2">{getItemLabel(item)}</div>
               <div className="flex flex-1">
                 {Array.from({ length: hoursToShow }).map((_, index) => {
-                  const entry = data[hoursToShow - index - 1]
+                  const entry = data[index]
                   const status = entry ? getStatus(entry, item as keyof UptimeData) : 'unknown'
                   return (
                     <div
