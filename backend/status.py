@@ -43,7 +43,7 @@ def fetch_and_save_status():
     # }
 
     # Normalize the timestamp to the beginning of the hour
-    now = datetime.utcnow()
+    now = datetime.now()
     timestamp = now.replace(minute=0, second=0, microsecond=0).isoformat()
 
     # Combine the status into a single response
