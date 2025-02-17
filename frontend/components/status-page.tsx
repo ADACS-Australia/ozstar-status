@@ -247,17 +247,17 @@ function HistoryTimeline({ data }: { data: UptimeData[] }) {
                 {Array.from({ length: hoursToShow }).map((_, index) => {
                   const entry = data[index]
                   const status = entry ? getStatus(entry, item as keyof UptimeData) : 'unknown'
-                  return (
+                    return (
                     <div
                       key={index}
                       className={`flex-1 h-4 ${
-                        status === 'up' ? 'bg-green-500' : status === 'down' ? 'bg-red-500' : status === 'partial' ? 'bg-yellow-500' : 'bg-gray-500'
+                      status === 'up' ? 'bg-green-500' : status === 'down' ? 'bg-red-500' : status === 'partial' ? 'bg-yellow-500' : 'bg-gray-500'
                       } border-r border-white`}
-                      title={`${getItemLabel(item)} - ${entry ? new Date(entry.timestamp).toLocaleString() : 'No data'}: ${
-                        status === 'up' ? 'Operational' : status === 'down' ? 'Down' : status === 'partial' ? 'Partial' : 'Unknown'
+                      title={`${getItemLabel(item)} - ${entry ? new Date(entry.timestamp).toLocaleString('en-AU', { timeZone: 'Australia/Melbourne' }) : 'No data'}: ${
+                      status === 'up' ? 'Operational' : status === 'down' ? 'Down' : status === 'partial' ? 'Partial' : 'Unknown'
                       }`}
                     />
-                  )
+                    )
                 })}
               </div>
             </div>
