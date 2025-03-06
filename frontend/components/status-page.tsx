@@ -132,6 +132,27 @@ export function StatusPage() {
           <div className="text-lg font-semibold text-center p-2 rounded-lg bg-gray-100">
             {getSummaryMessage()}
           </div>
+
+          {/* Added static outage banner */}
+          <div className="rounded-lg bg-red-100 p-4 shadow text-red-700 text-center">
+            <p className="font-semibold">Scheduled Outage Notice</p>
+            <p className="text-left">
+              OzSTAR will be unavailable from <b>11 March to 14 March</b> due to a major network upgrade at Swinburne University. During this time:
+            </p>
+            <ul className="text-left list-disc list-inside">
+              <li>The supercomputer will be inaccessible from the internet.</li>
+              <li>All supercomputing websites and helpdesk services will be offline.</li>
+            </ul>
+            <br />
+            <p className="text-left">
+              Jobs will continue running throughout the outage. However, users will not be able to log in to check job progress or submit new work.
+            </p>
+            <br />
+            <p className="text-left">
+              The outage may last up to 4 days, but if services are restored earlier, it will be reflected on this status page. Thank you for your patience.
+            </p>
+          </div>
+
           {hasUnknownStatus && (
             <div className="text-center text-yellow-600">
               <AlertTriangle className="inline-block h-6 w-6 mr-2" />
@@ -227,6 +248,8 @@ function HistoryTimeline({ data }: { data: UptimeData[] }) {
         return item
     }
   }
+
+  console.log(data)
 
   return (
     <div className="mt-6">
