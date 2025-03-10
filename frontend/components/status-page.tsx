@@ -71,8 +71,8 @@ const fetchUptimeData = async (): Promise<UptimeData[]> => {
 
 export function StatusPage() {
   const [status, setStatus] = useState<StatusData>({
-    jobQueues: [],
-    loginNodes: [],
+    jobQueues: [{ name: 'unknown', status: 'unknown' }],
+    loginNodes: [{ name: 'unknown', status: 'unknown' }],
     lastUpdated: new Date()
   })
   const [uptime, setUptime] = useState<UptimeData[]>([])
@@ -248,8 +248,6 @@ function HistoryTimeline({ data }: { data: UptimeData[] }) {
         return item
     }
   }
-
-  console.log(data)
 
   return (
     <div className="mt-6">
