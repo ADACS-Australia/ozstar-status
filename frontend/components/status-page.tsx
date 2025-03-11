@@ -22,7 +22,6 @@ type UptimeData = {
 };
 
 
-
 type StatusItemProps = {
   title: string;
   items: ItemStatus[];
@@ -30,6 +29,19 @@ type StatusItemProps = {
 };
 
 const fetchStatusData = async (): Promise<StatusData> => {
+
+  // // Mock data
+  // return { jobQueues: [
+  //   { name: 'gpu', status: 'up' },
+  //   { name: 'cpu', status: 'down' }
+  // ],
+  // loginNodes: [
+  //   { name: 'login1', status: 'down' },
+  //   { name: 'login2', status: 'up' }
+  // ],
+  // lastUpdated: new Date()
+  // }
+
   try {
     const response = await fetch('https://supercomputing.swin.edu.au/monitor/api/status')
     const data = await response.json()
@@ -71,20 +83,33 @@ const fetchUptimeData = async (): Promise<UptimeData[]> => {
 
 export function StatusPage() {
   const [status, setStatus] = useState<StatusData>({
-    jobQueues: [{ name: 'unknown', status: 'unknown' }],
-    loginNodes: [{ name: 'unknown', status: 'unknown' }],
+    jobQueues: [],
+    loginNodes: [],
     lastUpdated: new Date()
   })
   const [uptime, setUptime] = useState<UptimeData[]>([])
+  const [isLoading, setIsLoading] = useState(true) // Add loading state
 
   const updateStatus = async () => {
-    const data = await fetchStatusData()
-    setStatus({
-      jobQueues: data.jobQueues,
-      loginNodes: data.loginNodes,
-      lastUpdated: new Date()
-    })
+    try {
+      const data = await fetchStatusData()
+      setStatus({
+        jobQueues: data.jobQueues,
+        loginNodes: data.loginNodes,
+        lastUpdated: new Date()
+      })
+    } catch (error) {
+      console.error('Error updating status:', error)
+    } finally {
+      setIsLoading(false)
+    }
   }
+
+  // Add this calculation
+  const hasUnknownStatus = isLoading ||
+    status.jobQueues.some(q => q.status === 'unknown') ||
+    status.loginNodes.some(n => n.status === 'unknown')
+
 
   const updateUptime = async () => {
     const data = await fetchUptimeData()
@@ -113,13 +138,11 @@ export function StatusPage() {
   }
 
   const getSummaryMessage = () => {
-    const allOperational = status.jobQueues.every(q => q.status === 'up') && status.loginNodes.every(n => n.status === 'up')
+    const allOperational = status.jobQueues.length + status.loginNodes.length > 0 &&  status.jobQueues.every(q => q.status === 'up') && status.loginNodes.every(n => n.status === 'up')
     return allOperational
       ? "All systems are operational"
       : "We're experiencing issues with some systems"
   }
-
-  const hasUnknownStatus = status.jobQueues.some(q => q.status === 'unknown') || status.loginNodes.some(n => n.status === 'unknown')
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -129,6 +152,7 @@ export function StatusPage() {
           <CardDescription>Current operational status of key systems</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+
           <div className="text-lg font-semibold text-center p-2 rounded-lg bg-gray-100">
             {getSummaryMessage()}
           </div>
@@ -186,11 +210,12 @@ export function StatusPage() {
       </Card>
     </div>
   )
+
 }
 
 function StatusItem({ title, items, icon }: StatusItemProps) {
   const hasUnknownStatus = items.some(item => item.status === 'unknown')
-  const allOperational = items.every(item => item.status === 'up')
+  const allOperational = items.every(item => item.status === 'up') && items.length > 0
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
